@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f7fb">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="dashboard-header">
+        <div class="brand-lockup">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none">
+              <path d="M5 22.5 12.2 15l5.2 4.8L27 9" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M20.5 9H27v6.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="brand-name">Mona<span class="brand-divider">/</span>Workspace</span>
+        </div>
+        <div class="header-note">
+          <span class="live-dot" aria-hidden="true"></span>
+          Your team, in sync
+        </div>
+      </header>
+
+      <section class="dashboard-intro" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">OVERVIEW <span aria-hidden="true">/</span> OCTOBER 2026</p>
+          <h1 id="page-title">Project Pulse<span class="title-period">.</span></h1>
+          <p class="intro-copy">A clear view of what’s moving, what’s next, and where to focus.</p>
+        </div>
+        <div class="overview-stats" aria-label="Project overview">
+          <div class="stat">
+            <span class="stat-value" id="project-count">—</span>
+            <span class="stat-label">Active projects</span>
+          </div>
+          <span class="stat-rule" aria-hidden="true"></span>
+          <div class="stat">
+            <span class="stat-value"><span class="stat-sparkle" aria-hidden="true">✳</span> Moving</span>
+            <span class="stat-label">Progress at a glance</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="projects-section" aria-labelledby="projects-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">THE BIG PICTURE</p>
+            <h2 id="projects-heading">Your projects</h2>
+          </div>
+          <span class="section-caption">STATUS <span aria-hidden="true">·</span> PRIORITY <span aria-hidden="true">·</span> LATEST</span>
+        </div>
+        <div id="projects" class="project-grid" aria-live="polite" aria-busy="true">
+          <p class="loading-message">Gathering your project updates<span class="loading-ellipsis" aria-hidden="true">...</span></p>
+        </div>
+        <p id="load-error" class="load-error" role="alert" hidden></p>
+      </section>
+
+      <footer class="dashboard-footer">
+        <span><span class="footer-pulse" aria-hidden="true"></span> All your momentum, one place.</span>
+        <span>MADE FOR WHAT’S NEXT <span class="footer-star" aria-hidden="true">✳</span></span>
+      </footer>
+    </main>
+
+    <script>
+      const projectsContainer = document.querySelector("#projects");
+      const projectCount = document.querySelector("#project-count");
+      const loadError = document.querySelector("#load-error");
+
+      function createTextElement(tagName, className, text) {
+        const element = document.createElement(tagName);
+        element.className = className;
+        element.textContent = text;
+        return element;
+      }
+
+      function createProjectCard(project) {
+        const card = document.createElement("article");
+        card.className = "project-card";
+
+        const topRow = document.createElement("div");
+        topRow.className = "card-top-row";
+        const status = createTextElement("span", "status-badge", project.status);
+        status.dataset.status = project.status.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        topRow.append(status, createTextElement("span", "priority-label", project.priority));
+
+        const title = createTextElement("h3", "project-name", project.name);
+        const owner = document.createElement("p");
+        owner.className = "project-owner";
+        const ownerLabel = createTextElement("span", "owner-label", "OWNER");
+        owner.append(ownerLabel, document.createTextNode(project.owner));
+
+        const activity = document.createElement("div");
+        activity.className = "activity-block";
+        activity.append(
+          createTextElement("span", "activity-label", "RECENT ACTIVITY"),
+          createTextElement("p", "activity-copy", project.recentActivity),
+        );
+
+        const cardBottom = document.createElement("div");
+        cardBottom.className = "card-bottom";
+        cardBottom.append(
+          createTextElement("span", "activity-indicator", "Latest update"),
+          createTextElement("span", "card-arrow", "↗"),
+        );
+
+        card.append(topRow, title, owner, activity, cardBottom);
+        return card;
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("project-data.json");
+          if (!response.ok) {
+            throw new Error(`Project data request failed (${response.status}).`);
+          }
+          const data = await response.json();
+          if (!Array.isArray(data.projects)) {
+            throw new Error("Project data must contain a projects list.");
+          }
+
+          projectsContainer.replaceChildren();
+          projectCount.textContent = String(data.projects.length).padStart(2, "0");
+          if (data.projects.length === 0) {
+            projectsContainer.append(createTextElement("p", "empty-message", "No projects yet. Your next big thing starts here."));
+          } else {
+            data.projects.forEach((project) => {
+              projectsContainer.append(createProjectCard(project));
+            });
+          }
+        } catch (error) {
+          projectsContainer.replaceChildren();
+          loadError.textContent = `Project updates could not be loaded. ${error.message}`;
+          loadError.hidden = false;
+        } finally {
+          projectsContainer.setAttribute("aria-busy", "false");
+        }
+      }
+
+      loadProjects();
+    </script>
+  </body>
+</html>

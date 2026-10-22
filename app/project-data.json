@@ -1,0 +1,32 @@
+{
+  "projects": [
+    {
+      "name": "Mona's Project Pulse",
+      "owner": "Mona",
+      "status": "In progress",
+      "recentActivity": "Dashboard layout and project cards are coming together.",
+      "priority": "High priority"
+    },
+    {
+      "name": "Customer onboarding refresh",
+      "owner": "Priya Shah",
+      "status": "On track",
+      "recentActivity": "The welcome flow was reviewed with the customer success team.",
+      "priority": "High priority"
+    },
+    {
+      "name": "Insights & reporting",
+      "owner": "Jordan Lee",
+      "status": "Planning",
+      "recentActivity": "The team aligned on the first set of usage metrics.",
+      "priority": "Medium priority"
+    },
+    {
+      "name": "Design system refresh",
+      "owner": "Avery Chen",
+      "status": "At risk",
+      "recentActivity": "Final component feedback is in; review timing needs attention.",
+      "priority": "Needs attention"
+    }
+  ]
+}
